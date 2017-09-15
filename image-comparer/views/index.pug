@@ -1,0 +1,19 @@
+extends layout
+
+block content
+  script(type='text/javascript', src='js/main.js')
+  nav
+    .nav-wrapper
+      a.brand-logo(href='#') Image&nbsp;Compressor
+
+  .content
+    .drop-zone
+      .center
+        span.display-block DROP IMAGE HERE OR
+        a.display-block.waves-effect.waves-light.blue.btn select from disk
+        input#fake-button(type="file", accept=".jpg,.jpeg,.png")
+
+
+    //.half.right-img
+      p email
+      .half.left-img

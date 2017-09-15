@@ -1,0 +1,70 @@
+@import (css) "materialize.min.css";
+
+// colors
+
+@light-grey: #e0e0e0;
+
+@media screen and (max-width: 992px) {
+  nav a.brand-logo {
+    padding-left: 0 !important;
+  }
+}
+
+nav a.brand-logo {
+  padding-left: 20px;
+}
+
+.content {
+
+}
+
+@media screen and (min-width: 601px) {
+  .half {
+    display: inline-block;
+    width: 50%;
+    height: calc(~'100vh - 108px') !important;
+  }
+}
+
+.half {
+  display: inline-block;
+  width: 50%;
+  height: calc(~'100vh - 56px');
+}
+
+.left-img {
+
+}
+
+.drop-zone {
+  height: calc(~'100vh - 56px - 88px');
+  border: 4px dashed @light-grey;
+  margin: 40px;
+  border-radius: 4px;
+}
+
+.center {
+  position: relative;
+  left: 50%;
+  top: 50%;
+  -webkit-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}
+
+.drop-zone a {
+  width: 200px;
+  margin: auto;
+  padding: 0;
+}
+
+.drop-zone span {
+  font-size: 16px;
+}
+
+.display-block {
+  display: block;
+}
+
+#fake-button {
+  display: none;
+}
