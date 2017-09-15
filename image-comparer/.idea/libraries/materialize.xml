@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="materialize" type="javaScript">
+    <CLASSES />
+    <DOCUMENTATION>
+      <root url="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css" />
+    </DOCUMENTATION>
+    <SOURCES />
+  </library>
+</component>

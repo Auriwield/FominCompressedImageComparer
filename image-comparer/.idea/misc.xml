@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="JavaScriptSettings">
+    <option name="languageLevel" value="ES5" />
+  </component>
+  <component name="ProjectResources">
+    <resource url="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css" location="" />
+  </component>
+</project>
