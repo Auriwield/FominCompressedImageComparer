@@ -108,8 +108,6 @@ function scaleImageData(imageData, scale) {
     return new ImageData(dest, w2, h2);
 }
 
-
-
 function getImageData(file) {
     var url = window.URL.createObjectURL(file);
     var canvas = document.createElement('canvas');
