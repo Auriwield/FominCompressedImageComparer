@@ -38,37 +38,89 @@ $(document).ready(function () {
             var workZone = $(".work-zone:first");
             dropZone.addClass("hidden");
             workZone.removeClass("hidden");
-            drawCanvas(file);
+
+            return getImageData(file);
+        })
+        .then(function (imageData) {
+            drawCanvas(imageData);
             $(window).resize(function () {
-                drawCanvas(file);
+                drawCanvas(imageData);
             });
         });
 });
 
-function drawCanvas(file) {
-    var url = window.URL.createObjectURL(file);
+function drawCanvas(imageData) {
     var leftCanvas = $("#left-canvas");
     var ctx = leftCanvas[0].getContext("2d");
-    var leftImage = new Image();
-    leftImage.onload = function () {
-        var size = calcCanvasSize(leftImage);
-        leftCanvas[0].width = size.width;
-        leftCanvas[0].height = size.height;
-        ctx.drawImage(leftImage, 0, 0, leftImage.width, leftImage.height,
-            0, 0, size.width, size.height);
-    };
-    leftImage.src = url;
+    var scale = calcScale(imageData);
+    leftCanvas[0].width = imageData.width * scale;
+    leftCanvas[0].height = imageData.height * scale;
+    imageData = scaleImageData(imageData, scale);
+    ctx.putImageData(imageData, 0, 0);
 }
 
-function calcCanvasSize(image) {
+function calcScale(imageData) {
     var maxWidth = $(window).width() / 2 * 0.9;
     var maxHeight = ($(window).height() - $(".header").height()) * 0.9;
-    var mpX = maxWidth / image.width;
-    var mpY = maxHeight / image.height;
-    var mp = Math.min(mpX, mpY);
+    var mpX = maxWidth / imageData.width;
+    var mpY = maxHeight / imageData.height;
+    return Math.min(mpX, mpY);
+}
 
-    return {
-        width: image.width * mp,
-        height: image.height * mp
-    };
+function scaleImageData(imageData, scale) {
+    var h1 = imageData.height;
+    var w1 = imageData.width;
+    var w2 = Math.floor(w1 * scale);
+    var h2 = Math.floor(h1 * scale);
+
+    var srcLength = h1 * w1 * 4;
+    var destLength = w2 * h2 * 4;
+
+    var src = imageData.data;
+    var dest = new Uint8ClampedArray(destLength);
+
+    for (var y = 0; y < h2; y++)
+    {
+        for (var x = 0; x < w2; x++)
+        {
+            var x1 = Math.floor(x / scale);
+            var y1 = Math.floor(y / scale);
+
+            if (x1 < 0 || x1 >= w1 || y1 < 0 || y1 >= h1)
+                continue;
+
+            if (x < 0 || x >= w2 || y < 0 || y >= h2)
+                continue;
+
+            var destIndex = (y * w2 + x) * 4;
+            var sourceIndex = (y1 * w1 + x1) * 4;
+
+            if (destIndex + 3 >= destLength || destIndex < 0
+                || sourceIndex + 3 >= srcLength || sourceIndex < 0) continue;
+
+            for (var i = 0; i < 4; i++)
+            {
+                dest[destIndex + i] = src[sourceIndex + i];
+            }
+        }
+    }
+
+    return new ImageData(dest, w2, h2);
+}
+
+
+
+function getImageData(file) {
+    var url = window.URL.createObjectURL(file);
+    var canvas = document.createElement('canvas');
+    var ctx = canvas.getContext("2d");
+    var image = new Image();
+    var promise = new window.Promise(function (resolve) {
+        image.onload = function () {
+            ctx.drawImage(image, 0, 0);
+            resolve(ctx.getImageData(0, 0, image.width, image.height));
+        };
+    });
+    image.src = url;
+    return promise;
 }
