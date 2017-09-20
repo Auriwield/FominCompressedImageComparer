@@ -32,12 +32,14 @@ const bc1 = (function () {
                     }
                 }
 
+                // create binary representation of block
+
                 let minColorInt = minColor.toUint16();
                 let maxColorInt = maxColor.toUint16();
                 if (minColorInt === maxColorInt) {
                     dest[destIndex] = minColorInt;
                     dest[destIndex + 1] = maxColorInt;
-                    dest[destIndex + 2] = destIndex[3] = 0;
+                    dest[destIndex + 2] = dest[destIndex + 3] = 0;
                     continue;
                 } else if (minColorInt > maxColorInt) {
                     let temp = minColor;
@@ -52,10 +54,11 @@ const bc1 = (function () {
                 colors.push(minColor.plus(maxColor, 2 / 3, 1 / 3));
                 colors.push(minColor.plus(maxColor, 1 / 3, 2 / 3));
 
-                // create binary representation of block
+                dest[destIndex] = minColorInt;
+                dest[destIndex + 1] = maxColorInt;
                 dest[destIndex + 2] = dest[destIndex + 3] = 0;
-                for (let i = 0; i < 8; i++) {
-                    let minDistance = Number.MIN_SAFE_INTEGER;
+                for (let i = 0; i < samples.length; i++) {
+                    let minDistance = Number.MAX_SAFE_INTEGER;
                     let minIndex = -1;
                     for (let j = 0; j < colors.length; j++) {
                         let d = samples[i].distanceTo(colors[j]);
@@ -65,7 +68,8 @@ const bc1 = (function () {
                         }
                     }
 
-                    dest[destIndex + (i < 8 ? 2 : 3)] += minIndex * Math.pow(2, i * 2);
+                    let index = destIndex + (i < 8 ? 2 : 3);
+                    dest[index] += minIndex * Math.pow(2, (i % 8) * 2);
                 }
 
             }
