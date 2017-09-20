@@ -1,87 +1,80 @@
-var bc1 = (function () {
+const bc1 = (function () {
 
-    var encode = function (imageData) {
-        var w = imageData.width;
-        var h = imageData.height;
-        var src = imageData.data;
+    const encode = function (imageData) {
+        let w = imageData.width;
+        let h = imageData.height;
+        let src = imageData.data;
 
-        var dest = new Uint16Array(w * h / 4);
-        var destIndex = 0;
+        let dest = new Uint16Array(w * h / 4);
+        let destIndex = 0;
 
-        for (var y = 0; y < h; y += 4) {
-            for (var x = 0; x < w; x += 4, destIndex += 4) {
-                var minR = 255, minG = 255, minB = 255,
-                    maxR = 0, maxG = 0, maxB = 0;
+        for (let y = 0; y < h; y += 4) {
+            for (let x = 0; x < w; x += 4, destIndex += 4) {
+                let minColor = new Color(255, 255, 255, 255);
+                let maxColor = new Color(0, 0, 0, 0);
 
-                var samples = new Uint8Array(16 * 3);
-                var s_i = 0;
-                for (var i = y; i < h && i < y + 4; i++) {
-                    for (var j = x; j < w && j < x + 4; j++) {
-                        var index = (i * w + j) * 4;
-                        var r = src[index];
-                        var g = src[index + 1];
-                        var b = src[index + 2];
+                let samples = [];
 
-                        samples[s_i++] = r;
-                        samples[s_i++] = g;
-                        samples[s_i++] = b;
+                for (let i = y; i < h && i < y + 4; i++) {
+                    for (let j = x; j < w && j < x + 4; j++) {
+                        let index = (i * w + j) * 4;
 
-                        if (r < minR) minR = r;
-                        if (g < minG) minG = g;
-                        if (b < minB) minB = b;
+                        let r = src[index];
+                        let g = src[index + 1];
+                        let b = src[index + 2];
+                        let a = src[index + 3];
 
-                        if (r > maxR) maxR = r;
-                        if (g > maxG) maxG = g;
-                        if (b > maxB) maxB = b;
+                        let color = new Color(r, g, b, a);
+                        samples.push(color);
+
+                        minColor.min(color);
+                        maxColor.max(color);
                     }
                 }
 
-                //convert endpoint colors to 5:6:5 format
-                var color1 = 2048 * Math.floor(minR / 8) + 32 * Math.floor(minG / 6) + Math.floor(minB / 8);
-                var color2 = 2048 * Math.floor(maxR / 8) + 32 * Math.floor(maxG / 6) + Math.floor(maxB / 8);
-
-                if (color1 === color2) {
-                    dest[destIndex] = color1;
-                    dest[destIndex + 1] = color2;
+                let minColorInt = minColor.toUint16();
+                let maxColorInt = maxColor.toUint16();
+                if (minColorInt === maxColorInt) {
+                    dest[destIndex] = minColorInt;
+                    dest[destIndex + 1] = maxColorInt;
                     dest[destIndex + 2] = destIndex[3] = 0;
-                } else if (color1 > color2) {
-                    var temp = minR;
-                    minR = maxR;
-                    maxR = temp;
-
-                    temp = minG;
-                    minG = maxG;
-                    maxG = temp;
-
-                    temp = minB;
-                    minB = maxB;
-                    maxB = temp;
+                    continue;
+                } else if (minColorInt > maxColorInt) {
+                    let temp = minColor;
+                    minColor = maxColor;
+                    maxColor = temp;
                 }
 
-                var dR = (maxR - minR) / 255;
-                var dG = (maxG - minG) / 255;
-                var dB = (maxB - minB) / 255;
+                let colors = [];
 
-                var len = Math.sqrt(dR * dR + dG * dG + dB * dB);
-
-                var nR = dR / len;
-                var nG = dG / len;
-                var nB = dB / len;
+                colors.push(minColor);
+                colors.push(maxColor);
+                colors.push(minColor.plus(maxColor, 2 / 3, 1 / 3));
+                colors.push(minColor.plus(maxColor, 1 / 3, 2 / 3));
 
                 // create binary representation of block
+                dest[destIndex + 2] = dest[destIndex + 3] = 0;
+                for (let i = 0; i < 8; i++) {
+                    let minDistance = Number.MIN_SAFE_INTEGER;
+                    let minIndex = -1;
+                    for (let j = 0; j < colors.length; j++) {
+                        let d = samples[i].distanceTo(colors[j]);
+                        if (d < minDistance) {
+                            minDistance = d;
+                            minIndex = j;
+                        }
+                    }
 
-                for (var p = 0; p < 8; p++) {
-                    var ind = 0;
-
-                    var diffR = (samples[p] - minR) / 255;
-                    var diffG = (samples[p + 1] - minG) / 255;
-                    var diffB = (samples[p + 2] - minB) / 255;
-
-                    var i_val = (diffR * nR + diffG * nG + diffB * nB) / len;
-
+                    dest[destIndex + (i < 8 ? 2 : 3)] += minIndex * Math.pow(2, i * 2);
                 }
 
             }
+        }
+
+        return {
+            width: w,
+            height: h,
+            data: dest
         }
     };
 

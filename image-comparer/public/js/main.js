@@ -43,7 +43,7 @@ $(document).ready(function () {
         })
         .then(function (imageData) {
             drawCanvas(imageData);
-            bc1.encode(imageData);
+            var data = bc1.encode(imageData);
             $(window).resize(function () {
                 drawCanvas(imageData);
             });
