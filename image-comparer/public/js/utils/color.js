@@ -1,9 +1,27 @@
 class Color {
     constructor(r, g, b, a) {
+        if (arguments.length === 1) {
+            this.createFrom565color(arguments[0]);
+            return;
+        }
+
         this.r = r;
         this.g = g;
         this.b = b;
         this.a = a;
+    }
+
+    // create from 5/6/5 (16-bit) encoded color
+    // rrrrr gggggg bbbbb
+    createFrom565color(_565color) {
+        let r = _565color >>> 11;
+        let g = (_565color & 11111100000) >>> 5;
+        let b = _565color & 11111;
+
+        this.r = r * 8;
+        this.g = g * 6;
+        this.b = b * 8;
+        this.a = 255;
     }
 
     toUint16() {
@@ -21,13 +39,13 @@ class Color {
         }
     }
 
-    min (color) {
+    min(color) {
         if (color.r < this.r) this.r = color.r;
         if (color.g < this.g) this.g = color.g;
         if (color.b < this.b) this.b = color.b;
     }
 
-    max (color) {
+    max(color) {
         if (color.r > this.r) this.r = color.r;
         if (color.g > this.g) this.g = color.g;
         if (color.b > this.b) this.b = color.b;
@@ -36,7 +54,7 @@ class Color {
     // return a dot product of two color-vectors
     // m1 this color multiplier
     // m2 color multiplier
-    plus (color, m1, m2) {
+    plus(color, m1, m2) {
         let r = this.r * m1 + color.r * m2;
         let g = this.g * m1 + color.g * m2;
         let b = this.b * m1 + color.b * m2;

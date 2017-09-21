@@ -42,20 +42,24 @@ $(document).ready(function () {
             return getImageData(file);
         })
         .then(function (imageData) {
-            drawCanvas(imageData);
-            var data = bc1.encode(imageData);
+            let leftCanvas = $("#left-canvas");
+            let rightCanvas = $("#right-canvas");
+            let data = bc1.encode(imageData);
+            let rightImageData = bc1.decode(data);
+            drawIntoCanvas(imageData, leftCanvas);
+            drawIntoCanvas(rightImageData, rightCanvas);
             $(window).resize(function () {
-                drawCanvas(imageData);
+                drawIntoCanvas(imageData, leftCanvas);
+                drawIntoCanvas(rightImageData, rightCanvas);
             });
         });
 });
 
-function drawCanvas(imageData) {
-    var leftCanvas = $("#left-canvas");
-    var ctx = leftCanvas[0].getContext("2d");
+function drawIntoCanvas(imageData, canvas) {
+    var ctx = canvas[0].getContext("2d");
     var scale = calcScale(imageData);
-    leftCanvas[0].width = imageData.width * scale;
-    leftCanvas[0].height = imageData.height * scale;
+    canvas[0].width = imageData.width * scale;
+    canvas[0].height = imageData.height * scale;
     imageData = scaleImageData(imageData, scale);
     ctx.putImageData(imageData, 0, 0);
 }

@@ -82,8 +82,45 @@ const bc1 = (function () {
         }
     };
 
+    const decode = function (compressedImageData) {
+        let w = compressedImageData.width;
+        let h = compressedImageData.height;
+        let src = compressedImageData.data;
+        let dest = new Uint8ClampedArray(src.length * 4);
+
+        for (let i = 0; i < src.length; i += 4) {
+            let colors = [];
+            colors.push(new Color(src[i]));
+            colors.push(new Color(src[i + 1]));
+            colors.push(colors[0].plus(colors[1], 2 / 3, 1 / 3));
+            colors.push(colors[0].plus(colors[1], 1 / 3, 2 / 3));
+
+            let index = i * 4;
+
+            for (let j = 0; j < 16; j++) {
+                let bits = src[i + j < 8 ? 2 : 3];
+                let colorIndex = bits & ( 3 << j * 2);
+                let destIndex = index + j * w + j % 4;
+                let color = colors[colorIndex];
+
+                dest[destIndex] = color.r;
+                dest[destIndex + 1] = color.g;
+                dest[destIndex + 2] = color.b;
+                dest[destIndex + 3] = color.a;
+            }
+
+        }
+
+        return {
+            width: w,
+            height: h,
+            data: dest
+        }
+    };
+
     return {
-        encode: encode
+        encode: encode,
+        decode: decode
     }
 
 })();
