@@ -86,21 +86,32 @@ const bc1 = (function () {
         let w = compressedImageData.width;
         let h = compressedImageData.height;
         let src = compressedImageData.data;
-        let dest = new Uint8ClampedArray(src.length * 4);
+        let dest = new Uint8ClampedArray(src.length * 16);
 
         for (let i = 0; i < src.length; i += 4) {
             let colors = [];
             colors.push(new Color(src[i]));
             colors.push(new Color(src[i + 1]));
+
+            let index = i * 4;
+            if (colors[0].toUint16() === colors[1].toUint16()) {
+                for (let j = 0; j < 16; j++) {
+                    let destIndex = index + Math.floor(j / 4) * w + j % 4;
+                    dest[destIndex] = colors[0].r;
+                    dest[destIndex + 1] = colors[0].g;
+                    dest[destIndex + 2] = colors[0].b;
+                    dest[destIndex + 3] = colors[0].a;
+                }
+                continue;
+            }
+
             colors.push(colors[0].plus(colors[1], 2 / 3, 1 / 3));
             colors.push(colors[0].plus(colors[1], 1 / 3, 2 / 3));
 
-            let index = i * 4;
-
             for (let j = 0; j < 16; j++) {
                 let bits = src[i + j < 8 ? 2 : 3];
-                let colorIndex = bits & ( 3 << j * 2);
-                let destIndex = index + j * w + j % 4;
+                let colorIndex = (bits >> j * 2) & 3;
+                let destIndex = index + Math.floor(j / 4) * w + j % 4;
                 let color = colors[colorIndex];
 
                 dest[destIndex] = color.r;
