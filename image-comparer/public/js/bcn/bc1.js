@@ -93,10 +93,9 @@ const bc1 = (function () {
             colors.push(new Color(src[i]));
             colors.push(new Color(src[i + 1]));
 
-            let index = i * 4;
             if (colors[0].toUint16() === colors[1].toUint16()) {
                 for (let j = 0; j < 16; j++) {
-                    let destIndex = index + Math.floor(j / 4) * w + j % 4;
+                    let destIndex = (i + Math.floor(j / 4) * w + j % 4) * 4;
                     dest[destIndex] = colors[0].r;
                     dest[destIndex + 1] = colors[0].g;
                     dest[destIndex + 2] = colors[0].b;
@@ -111,7 +110,7 @@ const bc1 = (function () {
             for (let j = 0; j < 16; j++) {
                 let bits = src[i + j < 8 ? 2 : 3];
                 let colorIndex = (bits >> j * 2) & 3;
-                let destIndex = index + Math.floor(j / 4) * w + j % 4;
+                let destIndex = (i + Math.floor(j / 4) * w + j % 4) * 4;
                 let color = colors[colorIndex];
 
                 dest[destIndex] = color.r;

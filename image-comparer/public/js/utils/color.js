@@ -15,8 +15,8 @@ class Color {
     // rrrrr gggggg bbbbb
     createFrom565color(_565color) {
         let r = _565color >>> 11;
-        let g = (_565color & 11111100000) >>> 5;
-        let b = _565color & 11111;
+        let g = (_565color >>> 5) & 63;
+        let b = _565color & 63;
 
         this.r = r * 8;
         this.g = g * 6;
@@ -55,9 +55,9 @@ class Color {
     // m1 this color multiplier
     // m2 color multiplier
     plus(color, m1, m2) {
-        let r = this.r * m1 + color.r * m2;
-        let g = this.g * m1 + color.g * m2;
-        let b = this.b * m1 + color.b * m2;
+        let r = Math.floor(this.r * m1 + color.r * m2);
+        let g = Math.floor(this.g * m1 + color.g * m2);
+        let b = Math.floor(this.b * m1 + color.b * m2);
 
         return new Color(r, g, b);
     }
