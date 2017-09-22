@@ -16,7 +16,7 @@ class Color {
     createFrom565color(_565color) {
         let r = _565color >>> 11;
         let g = (_565color >>> 5) & 63;
-        let b = _565color & 63;
+        let b = _565color & 31;
 
         this.r = r * 8;
         this.g = g * 6;
@@ -31,7 +31,8 @@ class Color {
     }
 
     normalize() {
-        if (this.r > 1 || this.g > 1 || this.b > 1 || this.a > 1) {
+        if (this.r > 1 || this.g > 1
+            || this.b > 1 || this.a > 1) {
             this.r /= 255;
             this.g /= 255;
             this.b /= 255;
@@ -58,8 +59,9 @@ class Color {
         let r = Math.floor(this.r * m1 + color.r * m2);
         let g = Math.floor(this.g * m1 + color.g * m2);
         let b = Math.floor(this.b * m1 + color.b * m2);
+        let a = Math.floor(this.a * m1 + color.a * m2);
 
-        return new Color(r, g, b);
+        return new Color(r, g, b, a);
     }
 
     distanceTo(color) {

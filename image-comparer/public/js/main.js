@@ -48,6 +48,8 @@ $(document).ready(function () {
             let rightImageData = bc1.decode(data);
             drawIntoCanvas(imageData, leftCanvas);
             drawIntoCanvas(rightImageData, rightCanvas);
+            //let img = getImage(rightCanvas, rightImageData);
+            //document.write('<img src="'+img+'"/>');
             $(window).resize(function () {
                 drawIntoCanvas(imageData, leftCanvas);
                 drawIntoCanvas(rightImageData, rightCanvas);
@@ -55,12 +57,22 @@ $(document).ready(function () {
         });
 });
 
-function drawIntoCanvas(imageData, canvas) {
-    var ctx = canvas[0].getContext("2d");
-    var scale = calcScale(imageData);
+function getImage(canvas, imageData) {
+    drawIntoCanvas(imageData, canvas, 1.0);
+    return canvas[0].toDataURL();
+}
+
+function drawIntoCanvas(imageData, canvas, scale) {
+    let ctx = canvas[0].getContext("2d");
+    if (!scale) scale = calcScale(imageData);
     canvas[0].width = imageData.width * scale;
     canvas[0].height = imageData.height * scale;
-    imageData = scaleImageData(imageData, scale);
+
+    if (scale !== 1)
+        imageData = scaleImageData(imageData, scale);
+    else
+        imageData = new ImageData(imageData.data, imageData.width, imageData.height);
+
     ctx.putImageData(imageData, 0, 0);
 }
 
@@ -84,10 +96,8 @@ function scaleImageData(imageData, scale) {
     var src = imageData.data;
     var dest = new Uint8ClampedArray(destLength);
 
-    for (var y = 0; y < h2; y++)
-    {
-        for (var x = 0; x < w2; x++)
-        {
+    for (var y = 0; y < h2; y++) {
+        for (var x = 0; x < w2; x++) {
             var x1 = Math.floor(x / scale);
             var y1 = Math.floor(y / scale);
 
@@ -103,8 +113,7 @@ function scaleImageData(imageData, scale) {
             if (destIndex + 3 >= destLength || destIndex < 0
                 || sourceIndex + 3 >= srcLength || sourceIndex < 0) continue;
 
-            for (var i = 0; i < 4; i++)
-            {
+            for (var i = 0; i < 4; i++) {
                 dest[destIndex + i] = src[sourceIndex + i];
             }
         }
