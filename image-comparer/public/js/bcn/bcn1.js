@@ -95,12 +95,14 @@ const bc1 = (function () {
             colors.push(colors[0].plus(colors[1], 2 / 3, 1 / 3));
             colors.push(colors[0].plus(colors[1], 1 / 3, 2 / 3));
 
-            let index = i * 4;
+            let blocksInLine = w / 4;
+            let blockIndex = Math.floor(i / 4 / blocksInLine) * 4 * w + ((i / 4) % blocksInLine) * 16;
 
             for (let j = 0; j < 16; j++) {
                 let bits = src[i + j < 8 ? 2 : 3];
-                let colorIndex = bits & ( 3 << j * 2);
-                let destIndex = index + j * w + j % 4;
+                let colorIndex = (bits >> j * 2) & 3 ;
+
+                let destIndex = blockIndex + Math.floor(j / 4) * w * 4 + (j % 4) * 4;
                 let color = colors[colorIndex];
 
                 dest[destIndex] = color.r;
