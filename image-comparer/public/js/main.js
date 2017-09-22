@@ -46,8 +46,9 @@ $(document).ready(function () {
             let rightCanvas = $("#right-canvas");
             let data = bc1.encode(imageData);
             let rightImageData = bc1.decode(data);
-            drawIntoCanvas(imageData, leftCanvas);
-            drawIntoCanvas(rightImageData, rightCanvas);
+            let scale = calcScale(imageData);
+            drawIntoCanvas(imageData, leftCanvas, scale);
+            drawIntoCanvas(rightImageData, rightCanvas, scale);
             //let img = getImage(rightCanvas, rightImageData);
             //document.write('<img src="'+img+'"/>');
             $(window).resize(function () {

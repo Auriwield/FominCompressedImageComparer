@@ -30,6 +30,15 @@ class Color {
         return color[0];
     }
 
+    check(r, g, b, a) {
+        if (!a) a = this.a;
+        return this.r === r && this.g === g && this.b === b && this.a === a;
+    }
+
+    toString() {
+        return `r: ${this.r} g: ${this.g} b: ${this.b} a: ${this.a}`;
+    }
+
     normalize() {
         if (this.r > 1 || this.g > 1
             || this.b > 1 || this.a > 1) {
