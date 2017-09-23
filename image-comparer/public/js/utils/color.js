@@ -18,18 +18,51 @@ class Color {
         let g = (_565color >>> 5) & 63;
         let b = _565color & 31;
 
-        this.r = r * 8;
-        this.g = g * 6;
-        this.b = b * 8;
+        let k1 = 255 / 31;
+        let k2 = 255 / 63;
+
+        this.r = r * k1;
+        this.g = g * k2;
+        this.b = b * k1;
         this.a = 255;
+
+        this.fixValuesIfNeed();
+    }
+
+    fixValuesIfNeed() {
+        if (this.r < 0) this.r = 0;
+        if (this.r > 255) this.r = 255;
+
+        if (this.g < 0) this.g = 0;
+        if (this.g > 255) this.g = 255;
+
+        if (this.b < 0) this.b = 0;
+        if (this.b > 255) this.b = 255;
+
+        if (this.a < 0) this.a = 0;
+        if (this.a > 255) this.a = 255;
     }
 
     toUint16() {
         let color = new Uint16Array(1);
-        color[0] = 2048 * Math.floor(this.r / 8) + 32 * Math.floor(this.g / 6) + Math.floor(this.b / 8);
+
+        let k1 = 255 / 31;
+        let k2 = 255 / 63;
+
+        let r = Math.round(this.r / k1);
+        if (r > 31) r = 31;
+
+        let g = Math.round(this.g / k2);
+        if (g > 63) g = 63;
+
+        let b = Math.round(this.b / k1);
+        if (b > 31) b = 31;
+
+        color[0] = (r << 11) + (g << 5) + b;
         return color[0];
     }
 
+    // noinspection JSUnusedGlobalSymbols
     check(r, g, b, a) {
         if (!a) a = this.a;
         return this.r === r && this.g === g && this.b === b && this.a === a;

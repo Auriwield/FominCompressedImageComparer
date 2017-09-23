@@ -1,5 +1,5 @@
 function onSelectOrDragImage() {
-    return new window.Promise(function (resolve, reject) {
+    return new window.Promise(function (resolve) {
         $(".drop-zone:first")
             .on("dragover", function (event) {
                 event.preventDefault();
@@ -14,14 +14,14 @@ function onSelectOrDragImage() {
             .on("drop", function (event) {
                 event.preventDefault();
                 event.stopPropagation();
-                var file = event.originalEvent.dataTransfer.files[0];
+                let file = event.originalEvent.dataTransfer.files[0];
                 resolve(file);
             });
 
-        var input = $("input#fake-button");
+        let input = $("input#fake-button");
 
         input.on("change", function (event) {
-            var file = event.delegateTarget.files[0];
+            let file = event.delegateTarget.files[0];
             resolve(file);
         });
 
@@ -34,8 +34,8 @@ function onSelectOrDragImage() {
 $(document).ready(function () {
     onSelectOrDragImage()
         .then(function (file) {
-            var dropZone = $(".drop-zone:first");
-            var workZone = $(".work-zone:first");
+            let dropZone = $(".drop-zone:first");
+            let workZone = $(".work-zone:first");
             dropZone.addClass("hidden");
             workZone.removeClass("hidden");
 
@@ -49,7 +49,7 @@ $(document).ready(function () {
             let scale = calcScale(imageData);
             drawIntoCanvas(imageData, leftCanvas, scale);
             drawIntoCanvas(rightImageData, rightCanvas, scale);
-            //let img = getImage(rightCanvas, rightImageData);
+            //var img = getImage(rightCanvas, rightImageData);
             //document.write('<img src="'+img+'"/>');
             $(window).resize(function () {
                 let scale = calcScale(imageData);
@@ -59,6 +59,7 @@ $(document).ready(function () {
         });
 });
 
+// noinspection JSUnusedGlobalSymbols
 function getImage(canvas, imageData) {
     drawIntoCanvas(imageData, canvas, 1.0);
     return canvas[0].toDataURL();
@@ -98,10 +99,10 @@ function scaleImageData(imageData, scale) {
     let src = imageData.data;
     let dest = new Uint8ClampedArray(destLength);
 
-    for (var y = 0; y < h2; y++) {
-        for (var x = 0; x < w2; x++) {
-            var x1 = Math.floor(x / scale);
-            var y1 = Math.floor(y / scale);
+    for (let y = 0; y < h2; y++) {
+        for (let x = 0; x < w2; x++) {
+            let x1 = Math.floor(x / scale);
+            let y1 = Math.floor(y / scale);
 
             if (x1 < 0 || x1 >= w1 || y1 < 0 || y1 >= h1)
                 continue;
@@ -109,14 +110,14 @@ function scaleImageData(imageData, scale) {
             if (x < 0 || x >= w2 || y < 0 || y >= h2)
                 continue;
 
-            var destIndex = (y * w2 + x) * 4;
-            var sourceIndex = (y1 * w1 + x1) * 4;
+            let destIndex = (y * w2 + x) * 4;
+            let sourceIndex = (y1 * w1 + x1) * 4;
 
             if (destIndex + 3 >= destLength || destIndex < 0
                 || sourceIndex + 3 >= srcLength || sourceIndex < 0) continue;
 
 
-            for (var i = 0; i < 4; i++) {
+            for (let i = 0; i < 4; i++) {
                 dest[destIndex + i] = src[sourceIndex + i];
             }
         }

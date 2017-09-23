@@ -109,16 +109,12 @@ const bc1 = (function () {
             colors.push(colors[0].plus(colors[1], 1 / 3, 2 / 3));
 
             for (let j = 0; j < 16; j++) {
-                let bits = src[i + j < 8 ? 2 : 3];
+                let bits = src[i + (j < 8 ? 2 : 3)];
                 let colorIndex = (bits >> (j % 8) * 2) & 3;
 
                 let destIndex = blockIndex + (Math.floor(j / 4) * w + j % 4) * 4;
                 let color = colors[colorIndex];
 
-                /* if (Math.floor(destIndex / 400) === 8 && ((destIndex / 4) % 100) === 16) {
-                    console.log("")
-                }*/
-                //console.log("index = " + j + "; color " + color.toString());
                 dest[destIndex] = color.r;
                 dest[destIndex + 1] = color.g;
                 dest[destIndex + 2] = color.b;
