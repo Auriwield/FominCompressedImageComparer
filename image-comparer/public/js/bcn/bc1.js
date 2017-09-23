@@ -5,6 +5,13 @@ const bc1 = (function () {
         let h = imageData.height;
         let src = imageData.data;
 
+        if (w % 4 !== 0 || h % 4 !== 0) {
+            let data = bcnUtils.expandImage(imageData);
+            w = data.width;
+            h = data.height;
+            src = data.data;
+        }
+
         let dest = new Uint16Array(w * h / 4);
         let destIndex = 0;
 
@@ -76,6 +83,8 @@ const bc1 = (function () {
         return {
             width: w,
             height: h,
+            actualWidth: imageData.width,
+            actualHeight: imageData.height,
             data: dest
         }
     };
@@ -121,6 +130,13 @@ const bc1 = (function () {
                 dest[destIndex + 3] = color.a;
             }
 
+        }
+
+        let aW = compressedImageData.actualWidth;
+        let aH = compressedImageData.actualHeight;
+
+        if (aW && aH) {
+            return bcnUtils.shrinkImage(new ImageData(dest, w, h), aW, aH)
         }
 
         return {
