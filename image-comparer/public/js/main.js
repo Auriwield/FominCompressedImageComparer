@@ -52,8 +52,9 @@ $(document).ready(function () {
             //let img = getImage(rightCanvas, rightImageData);
             //document.write('<img src="'+img+'"/>');
             $(window).resize(function () {
-                drawIntoCanvas(imageData, leftCanvas);
-                drawIntoCanvas(rightImageData, rightCanvas);
+                let scale = calcScale(imageData);
+                drawIntoCanvas(imageData, leftCanvas, scale);
+                drawIntoCanvas(rightImageData, rightCanvas, scale);
             });
         });
 });
@@ -78,24 +79,24 @@ function drawIntoCanvas(imageData, canvas, scale) {
 }
 
 function calcScale(imageData) {
-    var maxWidth = $(window).width() / 2 * 0.9;
-    var maxHeight = ($(window).height() - $(".header").height()) * 0.9;
-    var mpX = maxWidth / imageData.width;
-    var mpY = maxHeight / imageData.height;
+    let maxWidth = $(window).width() / 2 * 0.9;
+    let maxHeight = ($(window).height() - $(".header").height()) * 0.9;
+    let mpX = maxWidth / imageData.width;
+    let mpY = maxHeight / imageData.height;
     return Math.min(mpX, mpY);
 }
 
 function scaleImageData(imageData, scale) {
-    var h1 = imageData.height;
-    var w1 = imageData.width;
-    var w2 = Math.floor(w1 * scale);
-    var h2 = Math.floor(h1 * scale);
+    let h1 = imageData.height;
+    let w1 = imageData.width;
+    let w2 = Math.floor(w1 * scale);
+    let h2 = Math.floor(h1 * scale);
 
-    var srcLength = h1 * w1 * 4;
-    var destLength = w2 * h2 * 4;
+    let srcLength = h1 * w1 * 4;
+    let destLength = w2 * h2 * 4;
 
-    var src = imageData.data;
-    var dest = new Uint8ClampedArray(destLength);
+    let src = imageData.data;
+    let dest = new Uint8ClampedArray(destLength);
 
     for (var y = 0; y < h2; y++) {
         for (var x = 0; x < w2; x++) {
@@ -114,6 +115,7 @@ function scaleImageData(imageData, scale) {
             if (destIndex + 3 >= destLength || destIndex < 0
                 || sourceIndex + 3 >= srcLength || sourceIndex < 0) continue;
 
+
             for (var i = 0; i < 4; i++) {
                 dest[destIndex + i] = src[sourceIndex + i];
             }
@@ -124,12 +126,14 @@ function scaleImageData(imageData, scale) {
 }
 
 function getImageData(file) {
-    var url = window.URL.createObjectURL(file);
-    var canvas = document.createElement('canvas');
-    var ctx = canvas.getContext("2d");
-    var image = new Image();
-    var promise = new window.Promise(function (resolve) {
+    let url = window.URL.createObjectURL(file);
+    let canvas = document.createElement('canvas');
+    let ctx = canvas.getContext("2d");
+    let image = new Image();
+    let promise = new window.Promise(function (resolve) {
         image.onload = function () {
+            canvas.width = image.width;
+            canvas.height = image.height;
             ctx.drawImage(image, 0, 0);
             resolve(ctx.getImageData(0, 0, image.width, image.height));
         };
