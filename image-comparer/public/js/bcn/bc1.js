@@ -43,12 +43,44 @@ const bc1 = (function () {
 
                 let minColorInt = minColor.toUint16();
                 let maxColorInt = maxColor.toUint16();
-                if (minColorInt === maxColorInt) {
-                    dest[destIndex] = minColorInt;
-                    dest[destIndex + 1] = maxColorInt;
+
+                if (minColorInt === maxColorInt
+                    || minColor.a !== maxColor.a
+                    || minColor.a === 0 && maxColor.a === 0) {
+
+                    let colors = [];
+
+                    colors.push(maxColor);
+                    colors.push(minColor);
+                    colors.push(minColor.plus(maxColor, 1 / 2, 1 / 2));
+                    colors.push(new Color(0, 0, 0, 0));
+
+                    dest[destIndex] = maxColorInt;
+                    dest[destIndex + 1] = minColorInt;
                     dest[destIndex + 2] = dest[destIndex + 3] = 0;
+                    for (let i = 0; i < samples.length; i++) {
+                        let minIndex = -1;
+                        let minDistance = Number.MAX_SAFE_INTEGER;
+                        if (!samples[i].check(0, 0, 0, 0)) {
+                            for (let j = 0; j < 4; j++) {
+                                let d = samples[i].distanceTo(colors[j]);
+                                if (d < minDistance) {
+                                    minDistance = d;
+                                    minIndex = j;
+                                }
+                            }
+                        } else {
+                            minIndex = 3;
+                        }
+
+                        let index = destIndex + (i < 8 ? 2 : 3);
+                        dest[index] += minIndex * Math.pow(2, (i % 8) * 2);
+                    }
+
                     continue;
-                } else if (minColorInt > maxColorInt) {
+                }
+
+                if (minColorInt > maxColorInt) {
                     let temp = minColor;
                     minColor = maxColor;
                     maxColor = temp;
@@ -103,13 +135,25 @@ const bc1 = (function () {
             let blocksInLine = w / 4;
             let blockIndex = (Math.floor(i / 4 / blocksInLine) * 4 * w + ((i / 4) % blocksInLine) * 4) * 4;
 
-            if (colors[0].toUint16() === colors[1].toUint16()) {
+            if (colors[0].toUint16() >= colors[1].toUint16()) {
+                colors.push(colors[0].plus(colors[1], 1 / 2, 1 / 2));
+                colors.push(new Color(0, 0, 0, 0));
+
                 for (let j = 0; j < 16; j++) {
+                    let bits = src[i + (j < 8 ? 2 : 3)];
+                    let colorIndex = (bits >> (j % 8) * 2) & 3;
+
                     let destIndex = blockIndex + (Math.floor(j / 4) * w + j % 4) * 4;
-                    dest[destIndex] = colors[0].r;
-                    dest[destIndex + 1] = colors[0].g;
-                    dest[destIndex + 2] = colors[0].b;
-                    dest[destIndex + 3] = colors[0].a;
+                    let color = colors[colorIndex];
+
+                    /*                    if (!color.check(0, 0, 0, 0)) {
+                                            console.log()
+                                        }*/
+
+                    dest[destIndex] = color.r;
+                    dest[destIndex + 1] = color.g;
+                    dest[destIndex + 2] = color.b;
+                    dest[destIndex + 3] = color.a;
                 }
                 continue;
             }

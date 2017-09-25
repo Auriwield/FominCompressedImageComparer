@@ -21,9 +21,9 @@ class Color {
         let k1 = 255 / 31;
         let k2 = 255 / 63;
 
-        this.r = r * k1;
-        this.g = g * k2;
-        this.b = b * k1;
+        this.r = Math.floor(r * k1);
+        this.g = Math.floor(g * k2);
+        this.b = Math.floor(b * k1);
         this.a = 255;
 
         this.fixValuesIfNeed();
@@ -64,7 +64,7 @@ class Color {
 
     // noinspection JSUnusedGlobalSymbols
     check(r, g, b, a) {
-        if (!a) a = this.a;
+        if (a === undefined) a = this.a;
         return this.r === r && this.g === g && this.b === b && this.a === a;
     }
 
@@ -86,12 +86,14 @@ class Color {
         if (color.r < this.r) this.r = color.r;
         if (color.g < this.g) this.g = color.g;
         if (color.b < this.b) this.b = color.b;
+        if (color.a < this.a) this.a = color.a;
     }
 
     max(color) {
         if (color.r > this.r) this.r = color.r;
         if (color.g > this.g) this.g = color.g;
         if (color.b > this.b) this.b = color.b;
+        if (color.a > this.a) this.a = color.a;
     }
 
     // return a dot product of two color-vectors
@@ -106,11 +108,17 @@ class Color {
         return new Color(r, g, b, a);
     }
 
-    distanceTo(color) {
+    distanceTo(color, withAlfa) {
         let rDiff = this.r - color.r;
         let gDiff = this.g - color.g;
         let bDiff = this.b - color.b;
         let dot = rDiff * rDiff + gDiff * gDiff + bDiff * bDiff;
+
+        if (withAlfa) {
+            let aDiff = this.a - color.a;
+            dot += aDiff * aDiff;
+        }
+
         return Math.sqrt(dot);
     }
 }
