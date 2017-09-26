@@ -35,25 +35,24 @@ $(document).ready(function () {
     onSelectOrDragImage()
         .then(function (file) {
             let dropZone = $(".drop-zone:first");
-            let workZone = $(".work-zone:first");
+            let tabs= $("#tabs");
             dropZone.addClass("hidden");
-            workZone.removeClass("hidden");
-
+            tabs.removeClass("hidden");
             return getImageData(file);
         })
-        .then(function (imageData) {
+        .then(function (leftImageData) {
             let leftCanvas = $("#left-canvas");
             let rightCanvas = $("#right-canvas");
-            let data = bc1.encode(imageData);
+            let data = bc1.encode(leftImageData);
             let rightImageData = bc1.decode(data);
-            let scale = calcScale(imageData);
-            drawIntoCanvas(imageData, leftCanvas, scale);
+            let scale = calcScale(leftImageData);
+            drawIntoCanvas(leftImageData, leftCanvas, scale);
             drawIntoCanvas(rightImageData, rightCanvas, scale);
             //var img = getImage(rightCanvas, rightImageData);
             //document.write('<img src="'+img+'"/>');
             $(window).resize(function () {
-                let scale = calcScale(imageData);
-                drawIntoCanvas(imageData, leftCanvas, scale);
+                let scale = calcScale(leftImageData);
+                drawIntoCanvas(leftImageData, leftCanvas, scale);
                 drawIntoCanvas(rightImageData, rightCanvas, scale);
             });
         });
@@ -142,3 +141,10 @@ function getImageData(file) {
     image.src = url;
     return promise;
 }
+
+const imageData = (function () {
+    return {
+        left: null,
+        right: null
+    }
+});
