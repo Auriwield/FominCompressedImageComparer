@@ -1,8 +1,12 @@
 $("nav li a[href='#histogram']").first().parent().click(function () {
 
-    function cosineInterpolate(a, b, m) {
+    function cerp(a, b, m) {
         let m2 = (1 - Math.cos(m * Math.PI)) / 2;
         return (a * (1 - m2) + b * m2);
+    }
+
+    function lerp(a, b, m) {
+        return a * (1 - m) + b * m;
     }
 
     function computeHistogram(imageData) {
@@ -43,7 +47,7 @@ $("nav li a[href='#histogram']").first().parent().click(function () {
             let x2 = Math.floor(rightIndex * imageData.width / histogramData.length);
             let m = (x - x1) / (x2 - x1);
 
-            let y1 = cosineInterpolate(histogramData[leftIndex], histogramData[rightIndex], m);
+            let y1 = cerp(histogramData[leftIndex], histogramData[rightIndex], m);
             coords[x] = imageData.height - Math.floor(y1 / max * imageData.height);
 
             /*   let index = (y * imageData.width + x) * 4;
@@ -53,17 +57,18 @@ $("nav li a[href='#histogram']").first().parent().click(function () {
         for (let x = 0; x < imageData.width - 1; x++) {
             let bot = coords[x];
             let top = coords[x + 1];
-            if (bot < top) {
-                let temp = bot;
-                bot = top;
-                top = temp;
-            }
-            setPixel(imageData, left,);
-
-            for (let i = top; i <= bot; i++) {
-                let h = cosineInterpolate(top, bot, (i - top) / (bot - top));
-                let index = (i*imageData.width)
-                setPixel(imageData, )
+            if (bot >= top) {
+                for (let i = top; i <= bot; i++) {
+                    let w = Math.floor(cerp(x+1, x , (i - top) / (bot - top)));
+                    let index = (i * imageData.width + w) * 4;
+                    setPixel(imageData, index, color);
+                }
+            } else {
+                for (let i = bot; i <= top; i++) {
+                    let w = Math.floor(cerp(x , x+1, (i - bot) / (top - bot)));
+                    let index = (i * imageData.width + w) * 4;
+                    setPixel(imageData, index, color);
+                }
             }
         }
     }
