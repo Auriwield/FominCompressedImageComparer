@@ -20,12 +20,18 @@ const canvasUtils = (function () {
         ctx.putImageData(imageData, 0, 0);
     }
 
-    function calcScale(imageData) {
-        let maxWidth = $(window).width() / 2 * 0.9;
+    function calcScale(imageData, multiplier = 2) {
+        let maxWidth = $(window).width() / multiplier * 0.9;
         let maxHeight = ($(window).height() - $(".header").height()) * 0.9;
         let mpX = maxWidth / imageData.width;
         let mpY = maxHeight / imageData.height;
         return Math.min(mpX, mpY);
+    }
+
+    function getPrescaledImageData() {
+        let maxWidth = $(window).width() * 0.8;
+        let maxHeight = ($(window).height() - $(".header").height()) * 0.8;
+        return new ImageData(new Uint8ClampedArray(maxWidth * maxHeight * 4), maxWidth, maxHeight);
     }
 
     function scaleImageData(imageData, scale) {
@@ -89,7 +95,8 @@ const canvasUtils = (function () {
         drawIntoCanvas: drawIntoCanvas,
         calcScale: calcScale,
         scaleImageData: scaleImageData,
-        getImageData: getImageData
+        getImageData: getImageData,
+        getPrescaledImageData: getPrescaledImageData
     }
-});
+})();
 
