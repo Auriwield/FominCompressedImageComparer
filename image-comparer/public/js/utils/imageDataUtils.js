@@ -29,8 +29,8 @@ const canvasUtils = (function () {
     }
 
     function getPrescaledImageData() {
-        let maxWidth = $(window).width() * 0.8;
-        let maxHeight = ($(window).height() - $(".header").height()) * 0.8;
+        let maxWidth = Math.floor($(window).width() * 0.8);
+        let maxHeight = Math.floor(($(window).height() - $(".header").height()) * 0.8);
         return new ImageData(new Uint8ClampedArray(maxWidth * maxHeight * 4), maxWidth, maxHeight);
     }
 
