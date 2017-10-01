@@ -1,5 +1,7 @@
 $("nav li a[href='#diff']").first().parent().click(function () {
 
+    if (!imageData.left) return;
+
     function getDiff(leftImageData, rightImageData) {
         let dest = new Uint8ClampedArray(leftImageData.data.length);
         for (let i = 0; i < leftImageData.data.length; i += 4) {
