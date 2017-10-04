@@ -1,5 +1,7 @@
 $("nav li a[href='#histogram']").first().parent().click(function () {
 
+    if (!imageData.left) return;
+
     function cerp(a, b, m) {
         let m2 = (1 - Math.cos(m * Math.PI)) / 2;
         return (a * (1 - m2) + b * m2);

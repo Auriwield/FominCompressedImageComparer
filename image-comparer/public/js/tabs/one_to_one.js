@@ -1,4 +1,7 @@
 $("nav li a[href='#one-to-one']").first().parent().click(function () {
+
+    if (!imageData.left) return;
+
     let leftCanvas = $("#left-canvas");
     let rightCanvas = $("#right-canvas");
 

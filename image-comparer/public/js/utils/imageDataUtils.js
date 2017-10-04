@@ -20,6 +20,16 @@ const canvasUtils = (function () {
         ctx.putImageData(imageData, 0, 0);
     }
 
+    function makeCanvasSquare(canvas) {
+        let maxWidth = $(window).width() * 0.9;
+        let maxHeight = ($(window).height() - $(".header").height()) * 0.9;
+
+        let side = Math.min(maxWidth, maxHeight);
+
+        canvas[0].width = side;
+        canvas[0].height = side;
+    }
+
     function calcScale(imageData, multiplier = 2) {
         let maxWidth = $(window).width() / multiplier * 0.9;
         let maxHeight = ($(window).height() - $(".header").height()) * 0.9;
@@ -92,6 +102,7 @@ const canvasUtils = (function () {
 
     return {
         getImage: getImage,
+        makeCanvasSquare: makeCanvasSquare,
         drawIntoCanvas: drawIntoCanvas,
         calcScale: calcScale,
         scaleImageData: scaleImageData,
