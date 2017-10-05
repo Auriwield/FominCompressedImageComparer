@@ -18,6 +18,23 @@ function onSelectOrDragImage() {
                 resolve(file);
             });
 
+        $("a#preview").click(function () {
+            let url = window.location.href + "/img/1.png";
+
+            let xhr = new XMLHttpRequest();
+            xhr.open("GET", url);
+            xhr.responseType = "blob";
+
+            xhr.onload = function (e) {
+                if (this.status === 200) {
+                    let blob = this.response;
+                    resolve(blob);
+                }
+            };
+
+            xhr.send();
+        });
+
         let input = $("input#fake-button");
 
         input.on("change", function (event) {
@@ -35,7 +52,7 @@ $(document).ready(function () {
     onSelectOrDragImage()
         .then(function (file) {
             let dropZone = $(".drop-zone:first");
-            let tabs= $("#tabs");
+            let tabs = $("#tabs");
             dropZone.addClass("hidden");
             tabs.removeClass("hidden");
             return canvasUtils.getImageData(file);
