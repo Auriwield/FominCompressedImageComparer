@@ -9,6 +9,7 @@ var lessMiddleware = require('less-middleware');
 var index = require('./routes/index');
 
 var app = express();
+var serve = require('serve-index');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -20,8 +21,11 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(lessMiddleware(path.join(__dirname, 'public')));
-app.use(express.static(path.join(__dirname, 'public')));
+let joinedPath = path.join(__dirname, 'public');
+app.use(lessMiddleware(joinedPath));
+app.use(express.static(joinedPath));
+app.use('/browse', express.static(joinedPath));
+app.use('/browse', serve(joinedPath));
 
 app.use('/', index);
 
