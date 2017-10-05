@@ -67,14 +67,14 @@ $("nav li a[href='#color-model']").first().parent().click(function () {
 
     // Draw the scene repeatedly
     function render() {
-        drawScene(gl, programInfo, buffers, rotateMatrix, [scale, scale, scale]);
+        drawScene(gl, programInfo, buffers, mat4.clone(rotateMatrix), [scale, scale, scale]);
         //requestAnimationFrame(render);
     }
 
     requestAnimationFrame(render);
 
     function onMouseDown(dx, dy) {
-        let radX = dx * Math.PI / 180;
+        let radX = -dx * Math.PI / 180;
         let radY = -dy * Math.PI / 180;
 
         let sensitivity = 0.5;
@@ -239,6 +239,7 @@ $("nav li a[href='#color-model']").first().parent().click(function () {
             modelViewMatrix,     // matrix to translate
             [-0.0, 0.0, -6.0]);  // amount to translate
 
+        mat4.transpose(rotateMatrix, rotateMatrix);
         mat4.multiply(modelViewMatrix, modelViewMatrix, rotateMatrix);
         mat4.scale(modelViewMatrix, modelViewMatrix, scaleVector);
 
