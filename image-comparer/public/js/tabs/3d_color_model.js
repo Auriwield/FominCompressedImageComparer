@@ -17,17 +17,22 @@ $("nav li a[href='#color-model']").first().parent().click(function () {
     const vsSource = `
     attribute vec4 aVertexPosition;
     attribute vec4 aVertexColor;
+
     uniform mat4 uModelViewMatrix;
     uniform mat4 uProjectionMatrix;
+
     varying lowp vec4 vColor;
+
     void main(void) {
-      gl_Position = aVertexPosition;
+      gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
+      gl_PointSize = 30.0;
       vColor = aVertexColor;
     }
   `;
 
     const fsSource = `
     varying lowp vec4 vColor;
+
     void main(void) {
       gl_FragColor = vColor;
     }
@@ -259,18 +264,21 @@ $("nav li a[href='#color-model']").first().parent().click(function () {
 
         // Set the shader uniforms
 
-     /*   gl.uniformMatrix4fv(
+        gl.uniformMatrix4fv(
             programInfo.uniformLocations.projectionMatrix,
             false,
             projectionMatrix);
         gl.uniformMatrix4fv(
             programInfo.uniformLocations.modelViewMatrix,
             false,
-            modelViewMatrix);*/
+            modelViewMatrix);
 
         {
-            const vertexCount = buffers.position.length;
-            gl.drawArrays(gl.POINTS, 0, vertexCount/3);
+            const vertexCount = buffers.position.length/3;
+            const type = gl.UNSIGNED_SHORT;
+            const offset = 0;
+            gl.drawArrays(gl.POINTS, 0, vertexCount);
+            //.drawElements(gl.POINTS, vertexCount, type, offset);
         }
     }
 });
