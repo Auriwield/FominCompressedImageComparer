@@ -100,6 +100,29 @@ const canvasUtils = (function () {
         return promise;
     }
 
+    function onMouseDown(canvas, callback) {
+        let x = -1;
+        let y = -1;
+        canvas.mousemove((e) => {
+
+            if (e.which === 1
+                && x !== -1 && y !== -1) {
+                let dx = e.pageX - x;
+                let dy = e.pageY - y;
+                callback(dx, dy);
+            }
+
+            x = e.pageX;
+            y = e.pageY;
+        });
+    }
+
+    function onScroll(canvas, callback) {
+        canvas.bind('mousewheel', function (e) {
+            callback(e.originalEvent.wheelDelta);
+        });
+    }
+
     return {
         getImage: getImage,
         makeCanvasSquare: makeCanvasSquare,
@@ -107,7 +130,9 @@ const canvasUtils = (function () {
         calcScale: calcScale,
         scaleImageData: scaleImageData,
         getImageData: getImageData,
-        getPrescaledImageData: getPrescaledImageData
+        getPrescaledImageData: getPrescaledImageData,
+        onMouseDown: onMouseDown,
+        onScroll: onScroll
     }
 })();
 

@@ -6,7 +6,7 @@ $("nav li a[href='#color-model']").first().parent().click(function () {
 
     canvasUtils.makeCanvasSquare(canvas);
 
-    const gl = canvas[0].getContext("webgl");
+    let gl = canvas[0].getContext("webgl");
 
     if (!gl) {
         alert('Unable to initialize WebGL. Your browser or machine may not support it.');
@@ -25,7 +25,7 @@ $("nav li a[href='#color-model']").first().parent().click(function () {
 
     void main(void) {
       gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
-      gl_PointSize = 30.0;
+      gl_PointSize = 1.0;
       vColor = aVertexColor;
     }
   `;
@@ -62,28 +62,51 @@ $("nav li a[href='#color-model']").first().parent().click(function () {
     // objects we'll be drawing.
     const buffers = initBuffers(gl);
 
-    let then = 0;
-    var cubeRotation = 0.0;
+    let rotateMatrix = mat4.create();
+    let scale = 1;
 
     // Draw the scene repeatedly
-    function render(now) {
-        now *= 0.001;  // convert to seconds
-        const deltaTime = now - then;
-        then = now;
-
-        drawScene(gl, programInfo, buffers, cubeRotation);
-        cubeRotation += deltaTime;
+    function render() {
+        drawScene(gl, programInfo, buffers, rotateMatrix, [scale, scale, scale]);
         //requestAnimationFrame(render);
     }
 
     requestAnimationFrame(render);
 
+    function onMouseDown(dx, dy) {
+        let radX = dx * Math.PI / 180;
+        let radY = -dy * Math.PI / 180;
 
-    /*    $(window).resize(function () {
-            let scale = canvasUtils.calcScale(diffImageData, 1);
-            let canvas = $("#diff-canvas");
-            canvasUtils.drawIntoCanvas(diffImageData, canvas, scale);
-        });*/
+        let sensitivity = 0.5;
+
+        radX *= sensitivity;
+        radY *= sensitivity;
+
+        mat4.rotate(rotateMatrix,   // destination matrix
+            rotateMatrix,           // matrix to rotate
+            radY,                   // amount to rotate in radians
+            [1, 0, 0]);             // axis to rotate around (Z)
+
+        mat4.rotate(rotateMatrix,   // destination matrix
+            rotateMatrix,           // matrix to rotate
+            radX,                   // amount to rotate in radians
+            [0, 1, 0]);             // axis to rotate around (Z)
+
+        requestAnimationFrame(render);
+    }
+
+    function onScroll(delta) {
+        scale += delta / 3000;
+        requestAnimationFrame(render);
+    }
+
+    canvasUtils.onMouseDown(canvas, onMouseDown);
+    canvasUtils.onScroll(canvas, onScroll);
+
+    /*$(window).resize(function () {
+        canvasUtils.makeCanvasSquare(canvas);
+        requestAnimationFrame(render);
+    });*/
 
     function initBuffers(gl) {
 
@@ -98,7 +121,7 @@ $("nav li a[href='#color-model']").first().parent().click(function () {
 
         // Now create an array of positions for the cube.
 
-        const positions = [];
+        const pixels = [];
 
 
         for (let i = 0; i < imageData.left.data.length; i += 4) {
@@ -106,18 +129,24 @@ $("nav li a[href='#color-model']").first().parent().click(function () {
             let g = imageData.left.data[i + 1] / 255;
             let b = imageData.left.data[i + 2] / 255;
 
-/*
-            for (let j = 0; j < positions.length; j += 3) {
-                if (positions[j] === r
-                    && positions[j + 1] === g
-                    && positions[j + 2] === b)
-                    continue l;
-            }
-*/
+            /*
+                        for (let j = 0; j < positions.length; j += 3) {
+                            if (positions[j] === r
+                                && positions[j + 1] === g
+                                && positions[j + 2] === b)
+                                continue l;
+                        }
+            */
 
-            positions.push(r);
-            positions.push(g);
-            positions.push(b);
+            pixels.push(r);
+            pixels.push(g);
+            pixels.push(b);
+        }
+
+        const positions = [];
+
+        for (let i = 0; i < pixels.length; i++) {
+            positions[i] = pixels[i] * 2 - 1;
         }
 
         // Now pass the list of positions into WebGL to build the
@@ -130,10 +159,10 @@ $("nav li a[href='#color-model']").first().parent().click(function () {
         // for each face.
 
         const colors = [];
-        for (let i = 0; i < positions.length; i += 3) {
-            colors.push(positions[i]);
-            colors.push(positions[i+1]);
-            colors.push(positions[i+2]);
+        for (let i = 0; i < pixels.length; i += 3) {
+            colors.push(pixels[i]);
+            colors.push(pixels[i + 1]);
+            colors.push(pixels[i + 2]);
             colors.push(1);
         }
 
@@ -142,7 +171,7 @@ $("nav li a[href='#color-model']").first().parent().click(function () {
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
 
         return {
-            position: {"buffer": positionBuffer, "length": positions.length},
+            position: {"buffer": positionBuffer, "length": pixels.length},
             color: {"buffer": colorBuffer, "length": colors.length}
         };
     }
@@ -168,7 +197,7 @@ $("nav li a[href='#color-model']").first().parent().click(function () {
         return shaderProgram;
     }
 
-    function drawScene(gl, programInfo, buffers, cubeRotation) {
+    function drawScene(gl, programInfo, buffers, rotateMatrix, scaleVector) {
         gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
         gl.clearDepth(1.0);                 // Clear everything
         gl.enable(gl.DEPTH_TEST);           // Enable depth testing
@@ -209,14 +238,9 @@ $("nav li a[href='#color-model']").first().parent().click(function () {
         mat4.translate(modelViewMatrix,     // destination matrix
             modelViewMatrix,     // matrix to translate
             [-0.0, 0.0, -6.0]);  // amount to translate
-        mat4.rotate(modelViewMatrix,  // destination matrix
-            modelViewMatrix,  // matrix to rotate
-            cubeRotation,     // amount to rotate in radians
-            [0, 0, 1]);       // axis to rotate around (Z)
-        mat4.rotate(modelViewMatrix,  // destination matrix
-            modelViewMatrix,  // matrix to rotate
-            cubeRotation * .7,// amount to rotate in radians
-            [0, 1, 0]);       // axis to rotate around (X)
+
+        mat4.multiply(modelViewMatrix, modelViewMatrix, rotateMatrix);
+        mat4.scale(modelViewMatrix, modelViewMatrix, scaleVector);
 
         // Tell WebGL how to pull out the positions from the position
         // buffer into the vertexPosition attribute
@@ -274,11 +298,8 @@ $("nav li a[href='#color-model']").first().parent().click(function () {
             modelViewMatrix);
 
         {
-            const vertexCount = buffers.position.length/3;
-            const type = gl.UNSIGNED_SHORT;
-            const offset = 0;
+            const vertexCount = buffers.position.length / 3;
             gl.drawArrays(gl.POINTS, 0, vertexCount);
-            //.drawElements(gl.POINTS, vertexCount, type, offset);
         }
     }
 });
