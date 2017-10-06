@@ -191,8 +191,8 @@ const bc1 = (function () {
     };
 
     return {
-        encode: encode,
-        decode: decode
+        encode,
+        decode
     }
 
 })();

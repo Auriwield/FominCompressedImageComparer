@@ -1,20 +1,40 @@
 $("nav li a[href='#color-model']").first().parent().click(function () {
+    //if (!imageData.left) return;
 
-    if (!imageData.left) return;
+    const canvas = $("#3d-color-canvas-left");
+    const canvas2 = $("#3d-color-canvas-right");
+    const subh = 48;
 
-    const canvas = $("#3d-color-canvas");
+    let leftInit = false;
+    let rightInit = false;
 
-    canvasUtils.makeCanvasSquare(canvas);
+    $("nav li a[href='#3d-canvas-left']").first().parent().click(function () {
+        if (leftInit) return;
+        leftInit = true;
+        init(canvas, imageData.left);
+    });
 
-    let gl = canvas[0].getContext("webgl");
+    $("nav li a[href='#3d-canvas-right']").first().parent().click(function () {
+        if (rightInit) return;
+        rightInit = true;
+        init(canvas2, imageData.right);
+    });
 
-    if (!gl) {
-        alert('Unable to initialize WebGL. Your browser or machine may not support it.');
-        return;
-    }
+    $("#color-model").find("nav li a.active").first().parent().click();
 
-    // gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
-    const vsSource = `
+    function init(canvas, imageData) {
+        if (!imageData) return;
+        canvasUtils.makeCanvasSquare(canvas, 0, subh);
+
+        let gl = canvas[0].getContext("webgl");
+
+        if (!gl) {
+            alert('Unable to initialize WebGL. Your browser or machine may not support it.');
+            return;
+        }
+
+        // gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
+        const vsSource = `
     attribute vec4 aVertexPosition;
     attribute vec4 aVertexColor;
 
@@ -30,7 +50,7 @@ $("nav li a[href='#color-model']").first().parent().click(function () {
     }
   `;
 
-    const fsSource = `
+        const fsSource = `
     varying lowp vec4 vColor;
 
     void main(void) {
@@ -38,77 +58,78 @@ $("nav li a[href='#color-model']").first().parent().click(function () {
     }
   `;
 
-    // Initialize a shader program; this is where all the lighting
-    // for the vertices and so forth is established.
-    const shaderProgram = initShaderProgram(gl, vsSource, fsSource);
+        // Initialize a shader program; this is where all the lighting
+        // for the vertices and so forth is established.
+        const shaderProgram = initShaderProgram(gl, vsSource, fsSource);
 
-    // Collect all the info needed to use the shader program.
-    // Look up which attributes our shader program is using
-    // for aVertexPosition, aVevrtexColor and also
-    // look up uniform locations.
-    const programInfo = {
-        program: shaderProgram,
-        attribLocations: {
-            vertexPosition: gl.getAttribLocation(shaderProgram, 'aVertexPosition'),
-            vertexColor: gl.getAttribLocation(shaderProgram, 'aVertexColor'),
-        },
-        uniformLocations: {
-            projectionMatrix: gl.getUniformLocation(shaderProgram, 'uProjectionMatrix'),
-            modelViewMatrix: gl.getUniformLocation(shaderProgram, 'uModelViewMatrix'),
-        },
-    };
+        // Collect all the info needed to use the shader program.
+        // Look up which attributes our shader program is using
+        // for aVertexPosition, aVevrtexColor and also
+        // look up uniform locations.
+        const programInfo = {
+            program: shaderProgram,
+            attribLocations: {
+                vertexPosition: gl.getAttribLocation(shaderProgram, 'aVertexPosition'),
+                vertexColor: gl.getAttribLocation(shaderProgram, 'aVertexColor'),
+            },
+            uniformLocations: {
+                projectionMatrix: gl.getUniformLocation(shaderProgram, 'uProjectionMatrix'),
+                modelViewMatrix: gl.getUniformLocation(shaderProgram, 'uModelViewMatrix'),
+            },
+        };
 
-    // Here's where we call the routine that builds all the
-    // objects we'll be drawing.
-    const buffers = initBuffers(gl);
+        // Here's where we call the routine that builds all the
+        // objects we'll be drawing.
+        const buffers = initBuffers(gl, imageData);
 
-    let rotateMatrix = mat4.create();
-    let scale = 1;
+        let rotateMatrix = mat4.create();
+        let scale = 1;
 
-    // Draw the scene repeatedly
-    function render() {
-        drawScene(gl, programInfo, buffers, mat4.clone(rotateMatrix), [scale, scale, scale]);
-        //requestAnimationFrame(render);
-    }
-
-    requestAnimationFrame(render);
-
-    function onMouseDown(dx, dy) {
-        let radX = -dx * Math.PI / 180;
-        let radY = -dy * Math.PI / 180;
-
-        let sensitivity = 0.5;
-
-        radX *= sensitivity;
-        radY *= sensitivity;
-
-        mat4.rotate(rotateMatrix,   // destination matrix
-            rotateMatrix,           // matrix to rotate
-            radY,                   // amount to rotate in radians
-            [1, 0, 0]);             // axis to rotate around (Z)
-
-        mat4.rotate(rotateMatrix,   // destination matrix
-            rotateMatrix,           // matrix to rotate
-            radX,                   // amount to rotate in radians
-            [0, 1, 0]);             // axis to rotate around (Z)
+        // Draw the scene repeatedly
+        function render() {
+            drawScene(gl, programInfo, buffers, mat4.clone(rotateMatrix), [scale, scale, scale]);
+            //requestAnimationFrame(render);
+        }
 
         requestAnimationFrame(render);
-    }
 
-    function onScroll(delta) {
-        scale += delta / 3000;
-        requestAnimationFrame(render);
-    }
+        function onMouseDown(dx, dy) {
+            let radX = -dx * Math.PI / 180;
+            let radY = -dy * Math.PI / 180;
 
-    canvasUtils.onMouseDown(canvas, onMouseDown);
-    canvasUtils.onScroll(canvas, onScroll);
+            let sensitivity = 0.5;
+
+            radX *= sensitivity;
+            radY *= sensitivity;
+
+            mat4.rotate(rotateMatrix,   // destination matrix
+                rotateMatrix,           // matrix to rotate
+                radY,                   // amount to rotate in radians
+                [1, 0, 0]);             // axis to rotate around (Z)
+
+            mat4.rotate(rotateMatrix,   // destination matrix
+                rotateMatrix,           // matrix to rotate
+                radX,                   // amount to rotate in radians
+                [0, 1, 0]);             // axis to rotate around (Z)
+
+            requestAnimationFrame(render);
+        }
+
+        function onScroll(delta) {
+            scale += delta / 3000;
+            requestAnimationFrame(render);
+        }
+
+        canvasUtils.onMouseDown(canvas, onMouseDown);
+        canvasUtils.onScroll(canvas, onScroll);
+    }
 
     /*$(window).resize(function () {
         canvasUtils.makeCanvasSquare(canvas);
         requestAnimationFrame(render);
     });*/
 
-    function initBuffers(gl) {
+    function initBuffers(gl, imageData) {
 
         // Create a buffer for the cube's vertex positions.
 
@@ -124,10 +145,10 @@ $("nav li a[href='#color-model']").first().parent().click(function () {
         const pixels = [];
 
 
-        for (let i = 0; i < imageData.left.data.length; i += 4) {
-            let r = imageData.left.data[i] / 255;
-            let g = imageData.left.data[i + 1] / 255;
-            let b = imageData.left.data[i + 2] / 255;
+        for (let i = 0; i < imageData.data.length; i += 4) {
+            let r = imageData.data[i] / 255;
+            let g = imageData.data[i + 1] / 255;
+            let b = imageData.data[i + 2] / 255;
 
             /*
                         for (let j = 0; j < positions.length; j += 3) {

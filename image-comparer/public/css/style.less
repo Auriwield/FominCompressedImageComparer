@@ -29,6 +29,11 @@ nav a.brand-logo {
     width: 100%;
     height: calc(~'100vh - 64px - 48px') !important;
   }
+
+  .full-3d {
+    width: 100%;
+    height: calc(~'100vh - 64px - 48px - 48px') !important;
+  }
 }
 
 a#preview {
@@ -42,6 +47,26 @@ a#preview {
 a#preview:hover {
   text-decoration: underline;
   cursor: pointer;
+}
+
+#color-model .nav-extended {
+  position: fixed;
+  bottom: 0;
+}
+
+//noinspection CssUnknownProperty
+#color-model .tabs .tab {
+  -webkit-box-flex: 1;
+  -webkit-flex-grow: 1;
+  -ms-flex-positive: 1;
+  flex-grow: 1;
+}
+
+#color-model .tabs {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
 }
 
 span#original {
@@ -63,6 +88,11 @@ span#compressed {
   //display: inline-block;
   width: 100%;
   height: calc(~'100vh - 56px');
+}
+
+.full-3d {
+  width: 100%;
+  height: calc(~'100vh - 56px - 48px');
 }
 
 .left-img {

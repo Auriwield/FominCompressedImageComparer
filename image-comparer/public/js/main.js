@@ -25,7 +25,7 @@ function onSelectOrDragImage() {
             xhr.open("GET", url);
             xhr.responseType = "blob";
 
-            xhr.onload = function (e) {
+            xhr.onload = function () {
                 if (this.status === 200) {
                     let blob = this.response;
                     resolve(blob);
@@ -63,7 +63,7 @@ $(document).ready(function () {
             imageData.left = leftImageData;
             imageData.right = bc1.decode(data);
 
-            $("nav li a.active").first().parent().click();
+            $(".header nav li a.active").first().parent().click();
         });
 });
 

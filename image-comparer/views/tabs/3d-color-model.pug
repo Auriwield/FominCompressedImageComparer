@@ -1,7 +1,17 @@
 block 3d-color-model
     #color-model
-        .full
-            .center
-                canvas#3d-color-canvas
+        nav.nav-extended
+            .nav-content
+                ul.tabs.tabs-transparent
+                    li.tab
+                        a.active(href='#3d-canvas-left') Original
+                    li.tab
+                        a(href='#3d-canvas-right') Compressed
+        .full-3d
+            .center#3d-canvas-left
+                canvas#3d-color-canvas-left
+            .center#3d-canvas-right
+                canvas#3d-color-canvas-right
+
     script(src='js/utils/glUtils.js')
     script(src='js/tabs/3d_color_model.js')

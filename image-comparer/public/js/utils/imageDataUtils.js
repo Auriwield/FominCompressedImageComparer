@@ -20,9 +20,9 @@ const canvasUtils = (function () {
         ctx.putImageData(imageData, 0, 0);
     }
 
-    function makeCanvasSquare(canvas) {
-        let maxWidth = $(window).width() * 0.9;
-        let maxHeight = ($(window).height() - $(".header").height()) * 0.9;
+    function makeCanvasSquare(canvas, subw = 0, subh = 0) {
+        let maxWidth = $(window).width() * 0.9 - subw;
+        let maxHeight = ($(window).height() - $(".header").height()) * 0.9 - subh;
 
         let side = Math.min(maxWidth, maxHeight);
 
@@ -123,16 +123,17 @@ const canvasUtils = (function () {
         });
     }
 
+    // noinspection JSUnusedGlobalSymbols
     return {
-        getImage: getImage,
-        makeCanvasSquare: makeCanvasSquare,
-        drawIntoCanvas: drawIntoCanvas,
-        calcScale: calcScale,
-        scaleImageData: scaleImageData,
-        getImageData: getImageData,
-        getPrescaledImageData: getPrescaledImageData,
-        onMouseDown: onMouseDown,
-        onScroll: onScroll
+        getImage,
+        makeCanvasSquare,
+        drawIntoCanvas,
+        calcScale,
+        scaleImageData,
+        getImageData,
+        getPrescaledImageData,
+        onMouseDown,
+        onScroll
     }
 })();
 

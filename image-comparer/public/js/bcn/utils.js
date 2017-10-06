@@ -72,8 +72,8 @@ const bcnUtils = (function () {
     };
 
     return {
-        expandImage: expandImage,
-        shrinkImage: shrinkImage
+        expandImage,
+        shrinkImage
     }
 
 })();

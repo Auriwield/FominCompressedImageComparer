@@ -23,6 +23,6 @@ const glUtils = (function () {
     }
 
     return {
-        loadShader: loadShader,
+        loadShader,
     }
 })();
