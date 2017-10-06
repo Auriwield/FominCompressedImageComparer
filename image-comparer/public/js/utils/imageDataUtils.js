@@ -100,7 +100,7 @@ const canvasUtils = (function () {
         return promise;
     }
 
-    function onMouseDown(canvas, callback) {
+    function onMouseDownDelta(canvas, callback) {
         let x = -1;
         let y = -1;
         canvas.mousemove((e) => {
@@ -117,10 +117,36 @@ const canvasUtils = (function () {
         });
     }
 
+    function onMouseDownAbsolute(canvas, callback) {
+        canvas.mousemove((e) => {
+            let rect = canvas[0].getBoundingClientRect();
+            if (e.which === 1) {
+                let x = e.pageX - rect.left;
+                let y = e.pageY - rect.top;
+                callback(x, y);
+            }
+        });
+    }
+
     function onScroll(canvas, callback) {
         canvas.bind('mousewheel', function (e) {
             callback(e.originalEvent.wheelDelta);
         });
+    }
+
+    function getSquareAtCoords(imageData, x, y) {
+        let dest = new Uint8ClampedArray(4 * 4 * 4);
+        let destIndex = 0;
+        for (let i = y; i < y + 4; i++) {
+            for (let j = x; j < x + 4; j++) {
+                let srcIndex = (j * imageData.width + i) * 4;
+                for (let p = 0; p < 4; p++) {
+                    dest[destIndex + p] = imageData.data[srcIndex + p]
+                }
+            }
+        }
+
+        return new ImageData(dest, 4, 4)
     }
 
     // noinspection JSUnusedGlobalSymbols
@@ -132,8 +158,9 @@ const canvasUtils = (function () {
         scaleImageData,
         getImageData,
         getPrescaledImageData,
-        onMouseDown,
-        onScroll
+        onMouseDown: onMouseDownDelta,
+        onMouseDownAbsolute: onMouseDownAbsolute,
+        onScroll,
+        getSquareAtCoords
     }
 })();
-
