@@ -83,6 +83,51 @@ const canvasUtils = (function () {
         return new ImageData(dest, w2, h2);
     }
 
+    function applyBorder(imageData, t, color) {
+        let w = imageData.width + t;
+        let h = imageData.height + t;
+
+        let dest = new Uint8ClampedArray(w * h * 4);
+
+        for (let i = 0; i < imageData.height; i++) {
+            for (let j = 0; j < imageData.width; j++) {
+                let srcIndex = (i * imageData.width + j) * 4;
+                let destIndex = ((i + t) * w + j + t) * 4;
+                for (let p = 0; p < 4; p++) {
+                    dest[destIndex + p] = imageData.data[srcIndex + p]
+                }
+                destIndex += 4;
+            }
+        }
+
+        let data = new ImageData(dest, w, h);
+
+        fillRectangle(data, 0, 0, w, t, color);
+        fillRectangle(data, 0, t, t, h - t * 2, color);
+        fillRectangle(data, w - t, t, t, h - t * 2, color);
+        fillRectangle(data, 0, h - t, w, t, color);
+
+        return data;
+    }
+
+    function fillRectangle(imageData, x, y, width, height, color) {
+        let yEnd = y + height;
+        let xEnd = x + width;
+
+        if (yEnd > imageData.height) yEnd = imageData.height;
+        if (xEnd > imageData.width) xEnd = imageData.width;
+
+        for (let i = y; i < yEnd; i++) {
+            for (let j = x; j < xEnd; j++) {
+                let index = (i * imageData.width + j) * 4;
+                imageData.data[index] = color.r;
+                imageData.data[index + 1] = color.g;
+                imageData.data[index + 2] = color.b;
+                imageData.data[index + 3] = color.a;
+            }
+        }
+    }
+
     function getImageData(file) {
         let url = window.URL.createObjectURL(file);
         let canvas = document.createElement('canvas');
@@ -135,18 +180,35 @@ const canvasUtils = (function () {
     }
 
     function getSquareAtCoords(imageData, x, y) {
-        let dest = new Uint8ClampedArray(4 * 4 * 4);
-        let destIndex = 0;
-        for (let i = y; i < y + 4; i++) {
-            for (let j = x; j < x + 4; j++) {
-                let srcIndex = (j * imageData.width + i) * 4;
-                for (let p = 0; p < 4; p++) {
+        let w = 4;
+        let h = 4;
+        let dest = new Uint8ClampedArray(w * h * 4);
+
+        for (let i = 3; i < dest.length; i += 4) {
+            dest[i] = 255;
+        }
+
+        x = x - x % 4;
+        y = y - y % 4;
+
+        let xEnd = x + 4;
+        let yEnd = y + 4;
+
+        if (xEnd > imageData.width) xEnd = imageData.width;
+        if (yEnd > imageData.height) yEnd = imageData.height;
+
+        for (let i = y, i1 = 0; i < yEnd; i++, i1++) {
+            for (let j = x, j1 = 0; j < xEnd; j++, j1++) {
+                let srcIndex = (i * imageData.width + j) * 4;
+                let destIndex = (i1 * w + j1) * 4;
+
+                for (let p = 0; p < 3; p++) {
                     dest[destIndex + p] = imageData.data[srcIndex + p]
                 }
             }
         }
 
-        return new ImageData(dest, 4, 4)
+        return new ImageData(dest, w, h)
     }
 
     // noinspection JSUnusedGlobalSymbols
@@ -161,6 +223,7 @@ const canvasUtils = (function () {
         onMouseDown: onMouseDownDelta,
         onMouseDownAbsolute: onMouseDownAbsolute,
         onScroll,
-        getSquareAtCoords
+        getSquareAtCoords,
+        applyBorder
     }
 })();
