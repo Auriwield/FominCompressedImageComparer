@@ -1,9 +1,10 @@
 block histogram
     #histogram
         .full
-            .center
-                canvas#hist-canvas
-                .legend
-                    span#original Original
-                    span#compressed Compressed
+            .half
+                .center
+                    canvas#hist-canvas-left
+            .half
+                .center
+                    canvas#hist-canvas-right
     script(src='js/tabs/histogram.js')
