@@ -7,6 +7,23 @@ $("nav li a[href='#histogram']").first().parent().click(function () {
         return (a * (1 - m2) + b * m2);
     }
 
+    function cuberp(a, b, c, d, m) {
+        let a0, a1, a2, a3, mu2;
+
+        mu2 = m * m;
+        a0 = d - c - a + b;
+        a1 = a - b - a0;
+        a2 = c - a;
+        a3 = b;
+
+        return (a0 * m * mu2 + a1 * mu2 + a2 * m + a3);
+    }
+
+    // noinspection JSUnusedLocalSymbols
+    function lerp(a, b, m) {
+        return a * (1 - m) + b * m;
+    }
+
     function computeHistogram(imageData) {
         let histogram = {};
         histogram.length = 255;
@@ -103,6 +120,10 @@ $("nav li a[href='#histogram']").first().parent().click(function () {
             }
         }
 
+        mapR[0] = 0;
+        mapG[0] = 0;
+        mapB[0] = 0;
+
         let maxR = 0;
         let maxG = 0;
         let maxB = 0;
@@ -125,27 +146,42 @@ $("nav li a[href='#histogram']").first().parent().click(function () {
 
         let dw = w2 / 256;
 
-        let dhR = h2 / maxR;
-        let dhG = h2 / maxG;
-        let dhB = h2 / maxB;
+        let max = Math.max(maxR, maxG, maxB);
+
+        mapR[-1] = mapR[0];
+        mapR[256] = mapR[255];
+
+        mapG[-1] = mapG[0];
+        mapG[256] = mapG[255];
+
+        mapB[-1] = mapB[0];
+        mapB[256] = mapB[255];
 
         for (let i = 0; i < h2; i++) {
             for (let j = 0; j < w2; j++) {
                 let destIndex = (i * w2 + j) * 4;
 
-                let srcIndex = Math.floor(j / dw);
+                let j0 = j / dw;
+                let srcIndex = Math.floor(j0);
                 let srcIndex2 = srcIndex < 255 ? srcIndex + 1 : 255;
-                let t = j / dw - srcIndex;
+                let t = j0 - srcIndex;
+                let nh2 = h2 - i;
 
-                if (R && (h2 - i) / dhR <= (1 - t) * mapR[srcIndex] + t * mapR[srcIndex2]) {
+                let valR = cuberp(mapR[srcIndex - 1], mapR[srcIndex], mapR[srcIndex2], mapR[srcIndex2 + 1], t);
+                let valG = cuberp(mapG[srcIndex - 1], mapG[srcIndex], mapG[srcIndex2], mapG[srcIndex2 + 1], t);
+                let valB = cuberp(mapB[srcIndex - 1], mapB[srcIndex], mapB[srcIndex2], mapB[srcIndex2 + 1], t);
+
+                if (R && nh2 <= valR / max * h2) {
                     dest[destIndex] = 255;
                     dest[destIndex + 3] = 255;
                 }
-                if (G && (h2 - i) / dhG <= (1 - t) * mapG[srcIndex] + t * mapG[srcIndex2]) {
+
+                if (G && nh2 <= valG / max * h2) {
                     dest[destIndex + 1] = 255;
                     dest[destIndex + 3] = 255;
                 }
-                if (B && (h2 - i) / dhB <= (1 - t) * mapB[srcIndex] + t * mapB[srcIndex2]) {
+
+                if (B && nh2 <= valB / max * h2) {
                     dest[destIndex + 2] = 255;
                     dest[destIndex + 3] = 255;
                 }
@@ -161,8 +197,8 @@ $("nav li a[href='#histogram']").first().parent().click(function () {
         let rightCanvas = $("#hist-canvas-right");
 
         if (true) {
-            let w = $(window).width() * 0.9 / 2;
-            let h = ($(window).height() - $(".header").height()) * 0.9;
+            let w = $(window).width() * 0.9;
+            let h = ($(window).height() - $(".header").height()) * 0.45;
             w = Math.floor(w);
             h = Math.floor(h);
 
