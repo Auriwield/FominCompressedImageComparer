@@ -162,13 +162,10 @@ const canvasUtils = (function () {
         });
     }
 
-    function onMouseDownAbsolute(canvas, callback) {
-        canvas.mousemove((e) => {
-            let rect = canvas[0].getBoundingClientRect();
+    function onMouseDownAbsolute(callback) {
+        $(document.body).mousemove((e) => {
             if (e.which === 1) {
-                let x = e.pageX - rect.left;
-                let y = e.pageY - rect.top;
-                callback(x, y);
+                callback(e.pageX, e.pageY);
             }
         });
     }
@@ -211,6 +208,16 @@ const canvasUtils = (function () {
         return new ImageData(dest, w, h)
     }
 
+    function pointInRect(x, y, rect) {
+        return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+    }
+
+    function clearMouseCallbacks() {
+        $(document.body).off('click');
+        $(document.body).off('mousemove');
+        $(document.body).off('mousewheel');
+    }
+
     // noinspection JSUnusedGlobalSymbols
     return {
         getImage,
@@ -224,6 +231,8 @@ const canvasUtils = (function () {
         onMouseDownAbsolute: onMouseDownAbsolute,
         onScroll,
         getSquareAtCoords,
-        applyBorder
+        applyBorder,
+        pointInRect,
+        clearMouseCallbacks
     }
 })();

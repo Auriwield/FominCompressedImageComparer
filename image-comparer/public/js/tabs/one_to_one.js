@@ -2,6 +2,8 @@ $("nav li a[href='#one-to-one']").first().parent().click(function () {
 
     if (!imageData.left) return;
 
+    canvasUtils.clearMouseCallbacks();
+
     let leftCanvas = $("#left-canvas");
     let rightCanvas = $("#right-canvas");
 
@@ -13,10 +15,7 @@ $("nav li a[href='#one-to-one']").first().parent().click(function () {
     let leftAbsCanvas = $("#can-abs-left");
     let rightAbsCanvas = $("#can-abs-right");
 
-    let leftRect = leftCanvas[0].getBoundingClientRect();
-    let rightRect = rightCanvas[0].getBoundingClientRect();
-
-    function onMouseDown(x, y) {
+    function drawBlocks(x, y, leftRect, rightRect) {
         leftAbsCanvas.removeClass("hidden");
         rightAbsCanvas.removeClass("hidden");
 
@@ -52,10 +51,30 @@ $("nav li a[href='#one-to-one']").first().parent().click(function () {
         canvasUtils.drawIntoCanvas(rightSquare, rightAbsCanvas, 1);
     }
 
-    canvasUtils.onMouseDownAbsolute(leftCanvas, onMouseDown);
-    canvasUtils.onMouseDownAbsolute(rightCanvas, onMouseDown);
+    function onMouseDown(x, y) {
+        let leftRect = leftCanvas[0].getBoundingClientRect();
+        let rightRect = rightCanvas[0].getBoundingClientRect();
 
-    $("body").mouseup(() => {
+        if (canvasUtils.pointInRect(x, y, leftRect)) {
+            x -= leftRect.left;
+            y -= leftRect.top;
+
+            drawBlocks(x, y, leftRect, rightRect);
+        } else if (canvasUtils.pointInRect(x, y, rightRect)) {
+            x -= rightRect.left;
+            y -= rightRect.top;
+
+            drawBlocks(x, y, leftRect, rightRect);
+        } else {
+            leftAbsCanvas.addClass("hidden");
+            rightAbsCanvas.addClass("hidden");
+        }
+    }
+
+    canvasUtils.onMouseDownAbsolute(onMouseDown);
+    //canvasUtils.onMouseDownAbsolute(rightCanvas, onMouseDown);
+
+    $(document.body).mouseup(() => {
         leftAbsCanvas.addClass("hidden");
         rightAbsCanvas.addClass("hidden");
     });
@@ -63,7 +82,7 @@ $("nav li a[href='#one-to-one']").first().parent().click(function () {
     //var img = getImage(rightCanvas, rightImageData);
     //document.write('<img src="'+img+'"/>');
     $(window).resize(function () {
-        let scale = canvasUtils.calcScale(imageData.left);
+        scale = canvasUtils.calcScale(imageData.left);
         canvasUtils.drawIntoCanvas(imageData.left, leftCanvas, scale);
         canvasUtils.drawIntoCanvas(imageData.right, rightCanvas, scale);
     });
