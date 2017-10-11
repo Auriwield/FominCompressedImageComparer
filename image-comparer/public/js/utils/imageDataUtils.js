@@ -225,6 +225,27 @@ const canvasUtils = (function () {
         $(document.body).off('mousewheel');
     }
 
+    function getMse(leftImageData, rightImageData) {
+        let ld = leftImageData.data;
+        let rd = rightImageData.data;
+        let h = leftImageData.height;
+        let w = leftImageData.width;
+
+        let sum = 0;
+        for (let y = 0; y < h; y++) {
+            for (let x = 0; x < w; x++) {
+                let index = (y * w + x) * 4;
+
+                let left = (ld[index] + ld[index + 1] + ld[index + 2]) / 3;
+                let right = (rd[index] + rd[index + 1] + rd[index + 2]) / 3;
+                let ms = left - right;
+                sum += ms * ms;
+            }
+        }
+
+        return sum / (w * h)
+    }
+
     // noinspection JSUnusedGlobalSymbols
     return {
         getImage,
@@ -240,6 +261,7 @@ const canvasUtils = (function () {
         getSquareAtCoords,
         applyBorder,
         pointInRect,
-        clearMouseCallbacks
+        clearMouseCallbacks,
+        getMse
     }
 })();

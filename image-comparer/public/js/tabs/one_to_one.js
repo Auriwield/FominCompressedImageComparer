@@ -15,6 +15,16 @@ $("nav li a[href='#one-to-one']").first().parent().click(function () {
     let leftAbsCanvas = $("#can-abs-left");
     let rightAbsCanvas = $("#can-abs-right");
 
+    //info
+
+    let xInfo = $("#info-x");
+    let yInfo = $("#info-y");
+    let mseInfo = $("#info-mse");
+    let globalMseInfo = $("#info-gl-mse");
+
+    let globalMse = canvasUtils.getMse(imageData.left, imageData.right);
+    globalMseInfo.text(Math.floor(globalMse*100)/100);
+
     function drawBlocks(x, y, leftRect, rightRect) {
         leftAbsCanvas.removeClass("hidden");
         rightAbsCanvas.removeClass("hidden");
@@ -36,10 +46,13 @@ $("nav li a[href='#one-to-one']").first().parent().click(function () {
         x = Math.floor(x / scale);
         y = Math.floor(y / scale);
 
-        //console.log("x = " + x + " y = " + y);
-
         let leftSquare = canvasUtils.getSquareAtCoords(imageData.left, x, y);
         let rightSquare = canvasUtils.getSquareAtCoords(imageData.right, x, y);
+
+        xInfo.text(x);
+        yInfo.text(y);
+        let mse = canvasUtils.getMse(leftSquare, rightSquare);
+        mseInfo.text(Math.floor(mse*100)/100);
 
         leftSquare = canvasUtils.scaleImageData(leftSquare, 20);
         rightSquare = canvasUtils.scaleImageData(rightSquare, 20);
@@ -68,17 +81,21 @@ $("nav li a[href='#one-to-one']").first().parent().click(function () {
         } else {
             leftAbsCanvas.addClass("hidden");
             rightAbsCanvas.addClass("hidden");
+
+            xInfo.text("-");
+            yInfo.text("-");
+            mseInfo.text("-");
         }
     }
 
     canvasUtils.onMouseDownAbsolute(onMouseDown);
     //canvasUtils.onMouseDownAbsolute(rightCanvas, onMouseDown);
 
-    $(document.body).mouseup(() => {
+  /*  $(document.body).mouseup(() => {
         leftAbsCanvas.addClass("hidden");
         rightAbsCanvas.addClass("hidden");
     });
-
+*/
     //var img = getImage(rightCanvas, rightImageData);
     //document.write('<img src="'+img+'"/>');
     $(window).resize(function () {

@@ -8,4 +8,22 @@ block one-to-one
                 canvas#right-canvas
         canvas#can-abs-left.fixed
         canvas#can-abs-right.fixed
+        .info-bar.fixed
+            .container
+                .row
+                    .col.s2
+                        span.info-type Comression ratio
+                        span.value 8x
+                    .col.s2
+                        span.info-type Image MSE
+                        span#info-gl-mse.value -
+                    .col.s2
+                        span.info-type X
+                        span#info-x.value -
+                    .col.s2
+                        span.info-type Y
+                        span#info-y.value -
+                    .col.s2
+                        span.info-type Block MSE
+                        span#info-mse.value
     script(src='js/tabs/one_to_one.js')
