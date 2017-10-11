@@ -163,10 +163,15 @@ const canvasUtils = (function () {
     }
 
     function onMouseDownAbsolute(callback) {
+        let isMouseDown = false;
+        $(document.body).mousedown((e) => {
+            callback(e.pageX, e.pageY);
+            isMouseDown = true;
+        });
+        $(document.body).mouseup(() => isMouseDown = false);
         $(document.body).mousemove((e) => {
-            if (e.which === 1) {
-                callback(e.pageX, e.pageY);
-            }
+            if (!isMouseDown) return;
+            callback(e.pageX, e.pageY);
         });
     }
 
@@ -215,6 +220,8 @@ const canvasUtils = (function () {
     function clearMouseCallbacks() {
         $(document.body).off('click');
         $(document.body).off('mousemove');
+        $(document.body).off('mousedown');
+        $(document.body).off('mouseup');
         $(document.body).off('mousewheel');
     }
 
